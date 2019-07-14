@@ -4,11 +4,8 @@ import json
 import os
 
 def main():
-    board_id = input("Board identifier: ")
-    board = board_id.replace("/", "")
-    thread_num = input("Thread number: ")
-    url = str("https://2ch.hk/" + board + "/res/" + thread_num + ".json")
-    s = lib.urlopen(url)
+    thread_url = input("Thread link: ")
+    s = lib.urlopen(GetThreadJson(thread_url))
     with s:
         data = json.loads(s.read().decode())
         threads_array = data['threads']
@@ -29,6 +26,25 @@ def download(url, output_name):
     f = open("parsed/" + str(output_name), "wb")
     f.write(content)
     f.close()
+
+def GetThreadJson(url):
+    convertedUrl = ""
+    if not url.startswith("https://"):
+        if url.startswith("http://"):
+            convertedUrl = url.replace("http://", "https://")
+        else:
+            convertedUrl = url.replace("2ch.hk/", "https://2ch.hk/")
+    else:
+        convertedUrl = url
+
+    if not url.endswith(".html"):
+        if url.endswith(".json"):
+            return convertedUrl
+        else:
+            return str(convertedUrl + ".json")
+    else:
+        return convertedUrl.replace(".html", ".json")
+
 
 if __name__ == "__main__":
     if not os.path.exists("parsed"):
